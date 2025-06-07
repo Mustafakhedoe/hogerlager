@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Als je dit speel +100000 aura</title>
+<style>
+       body {
+           font-family: Arial, sans-serif;
+           display: flex;
+           justify-content: center;
+           align-items: center;
+           height: 100vh;
+           margin: 0;
+           background-image: url(img/kaart.webp) ;
+       }
+       .game-container {
+           background-color: rgb(209, 198, 247);
+           border-color: black;
+           padding: 20px;
+           border-radius: 10px;
+           box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+           text-align: center;
+       }
+       button {
+           margin: 10px;
+           padding: 10px 20px;
+           font-size: 16px;
+           cursor: pointer;
+       }
+       #result {
+           margin-top: 20px;
+           font-weight: bold;
+       }
+</style>
+</head>
+
+
+
+<body>
+<div class="game-container">
+<h1>Als je dit speelt +10000 aura</h1>
+<p>Score: <span id="score">1000</span></p>
+<p>Ronde: <span id="round">1</span></p>
+<p>Streak: <span id="streak">0</span></p>
+<p>Hoogste Streak: <span id="highestStreak">0</span></p>
+<p>Inzet: <span id="bet">50</span></p>
+<p>Eerste worp: <span id="firstRoll"></span></p>
+<button id="higherBtn">Hoger</button>
+<button id="lowerBtn">Lager</button>
+<p id="result"></p>
+<button id="nextRound" style="display:none;">Volgende Ronde</button>
+</div>
+<script>
+       let score = 1000;
+       let round = 1;
+       let streak = 0;
+       let highestStreak = 0;
+       let firstRoll, secondRoll;
+       function updateDisplay() {
+           document.getElementById('score').textContent = score;
+           document.getElementById('round').textContent = round;
+           document.getElementById('streak').textContent = streak;
+           document.getElementById('highestStreak').textContent = highestStreak;
+           document.getElementById('bet').textContent = calculateBet();
+       }
+       function calculateBet() {
+           const baseBet = Math.max(50, Math.min(Math.floor(score / 10), 500));
+           return baseBet + (streak * 10);
+       }
+       function rollDice() {
+           return Math.floor(Math.random() * 11) + 2; // 2 to 12
+       }
+       function startRound() {
+           firstRoll = rollDice();
+           document.getElementById('firstRoll').textContent = firstRoll;
+           document.getElementById('higherBtn').style.display = 'inline';
+           document.getElementById('lowerBtn').style.display = 'inline';
+           document.getElementById('result').textContent = '';
+           document.getElementById('nextRound').style.display = 'none';
+       }
+       function guess(higher) {
+           secondRoll = rollDice();
+           const bet = calculateBet();
+           let resultText;
+           if ((higher && secondRoll > firstRoll) || (!higher && secondRoll < firstRoll)) {
+               score += bet;
+               streak++;
+               highestStreak = Math.max(highestStreak, streak);
+               resultText = `Je wint! Tweede worp: ${secondRoll}. Je wint ${bet} punten.`;
+           } else if (secondRoll === firstRoll) {
+               resultText = `Gelijkspel! Tweede worp: ${secondRoll}. Je verliest geen punten.`;
+           } else {
+               score -= bet;
+               streak = 0;
+               resultText = `Je verliest. Tweede worp: ${secondRoll}. Je verliest ${bet} punten.`;
+           }
+           document.getElementById('result').textContent = resultText;
+           document.getElementById('higherBtn').style.display = 'none';
+           document.getElementById('lowerBtn').style.display = 'none';
+           document.getElementById('nextRound').style.display = 'inline';
+           updateDisplay();
+           if (score <= 0) {
+               endGame();
+           }
+       }
+       function endGame() {
+           document.getElementById('result').textContent = `Spel afgelopen! Eindscore: ${score}. Hoogste streak: ${highestStreak}.`;
+           document.getElementById('nextRound').style.display = 'none';
+       }
+       document.getElementById('higherBtn').addEventListener('click', () => guess(true));
+       document.getElementById('lowerBtn').addEventListener('click', () => guess(false));
+       document.getElementById('nextRound').addEventListener('click', () => {
+           round++;
+           startRound();
+           updateDisplay();
+       });
+       updateDisplay();
+       startRound();
+</script>
+</body>
+</html>
